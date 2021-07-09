@@ -7,7 +7,7 @@ var tasksCompletedEl = document.querySelector("#tasks-completed");
 var pageContentEl = document.querySelector("#page-content");
 
 // create array to hold tasks for saving
-var task = [];
+var tasks = [];
 
 var taskFormHandler = function(event) {
   event.preventDefault();
@@ -60,11 +60,12 @@ var createTaskEl = function(taskDataObj) {
   
   tasks.push(taskDataObj);
 
+  // save tasks to localStorage
+  saveTasks();
+
   // increase task counter for next unique id
   taskIdCounter++;
 
-  console.log(taskDataObj);
-  console.log(taskDataObj.status);
 };
 
 var createTaskActions = function(taskId) {
@@ -122,12 +123,16 @@ var completeEditTask = function(taskName, taskType, taskId) {
     }
   };
 
+  
+
   alert("Task Updated!");
 
   // remove data attribute from form
   formEl.removeAttribute("data-task-id");
   // update formEl button to go back to saying "Add Task" instead of "Edit Task"
   formEl.querySelector("#save-task").textContent = "Add Task";
+  // save tasks to localStorage
+  saveTasks();
 };
 
 var taskButtonHandler = function(event) {
@@ -165,11 +170,14 @@ var taskStatusChangeHandler = function(event) {
   }
 
   // update task's in tasks array
-  for (var i = 0; i < task.length; i++) {
+  for (var i = 0; i < tasks.length; i++) {
     if (tasks[i].id === parseInt(taskId)) {
       tasks[i].status = statusValue;
     }
   }
+
+  // save tasks to localStorage
+  saveTasks();
 };
 
 var editTask = function(taskId) {
@@ -200,6 +208,27 @@ var deleteTask = function(taskId) {
   // find task list element with taskId value and remove it
   var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
   taskSelected.remove();
+
+  // create new array to hold updated list to tasks
+  var updatedTaskArr = [];
+
+  // loop through current tasks
+  for (var i = 0; i < task.length; i++) {
+    // if tasks[i].id doesn't match the value of taskId, let's keep that task
+    if (tasks[i].id !== parseInt(taskId)) {
+      updatedTaskArr.push(tasks[i]);
+    }
+  }
+
+  // reassign tasks array to be the same as updatedTaskArr
+  tasks = updatedTaskArr;
+
+  // save tasks to localStorage
+  saveTasks();
+};
+
+var saveTasks = function() {
+localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
 // Create a new task
